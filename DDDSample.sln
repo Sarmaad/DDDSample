@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{7503DC12-46FC-498A-B9CC-3990548128EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{45B6B734-A222-41E6-9305-29F469B8D123}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Test.Integration", "Domain.Test.Integration\Domain.Test.Integration.csproj", "{572D77C9-D9E3-4643-B1FC-B889A7722366}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7503DC12-46FC-498A-B9CC-3990548128EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7503DC12-46FC-498A-B9CC-3990548128EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7503DC12-46FC-498A-B9CC-3990548128EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7503DC12-46FC-498A-B9CC-3990548128EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{572D77C9-D9E3-4643-B1FC-B889A7722366}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{572D77C9-D9E3-4643-B1FC-B889A7722366}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{572D77C9-D9E3-4643-B1FC-B889A7722366}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{572D77C9-D9E3-4643-B1FC-B889A7722366}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
