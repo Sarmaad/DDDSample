@@ -19,7 +19,7 @@ namespace Domain.Models
             get { return OrderLines == null ? (decimal?) null : OrderLines.Sum(x => x.QTY*x.Price); }
             private set { }
         }
-
+         
         public decimal TotalPaid { get; private set; }
 
         public Address ShippingAddress { get; private set; }
