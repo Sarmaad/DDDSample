@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Exceptions;
 using Domain.Models;
 using NUnit.Framework;
 
@@ -13,22 +14,10 @@ namespace Domain.Test.Integration
     public class CustomerTests:SqlCeBaseTest
     {
         
-        [SetUp]
-        public void Setup()
-        {
-            
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            
-        }
-
         [Test]
         public void CreateCustomer()
         {
-            var domain = DefaulCustomer();
+            var domain = DefaulCustomer(Context);
             Context.Customers.Add(domain);
             Context.SaveChanges();
 
@@ -41,7 +30,7 @@ namespace Domain.Test.Integration
         public void CreateCustomer_WithLimits()
         {
             var limit = 10.95m;
-            var domain = DefaulCustomer();
+            var domain = DefaulCustomer(Context);
             domain.SetCustomerOrderLimit(limit);
             
             Context.Customers.Add(domain);
@@ -53,11 +42,24 @@ namespace Domain.Test.Integration
             Assert.AreEqual(limit, customer.CustomerCreditLimit);
         }
 
-        public static Customer DefaulCustomer(Guid? id = null)
+        [Test, ExpectedException(typeof(DuplicateEmailException))]
+        public void CreateCustomer_DuplciateEmailAddress()
+        {
+            // add the first customer
+            Context.Customers.Add(DefaulCustomer(Context));
+            Context.SaveChanges();
+
+            // add the second customer
+            Context.Customers.Add(DefaulCustomer(Context));
+            Context.SaveChanges();
+            
+        }
+
+        public static Customer DefaulCustomer(IAppContext context,Guid? id = null)
         {
             if (!id.HasValue) id = Guid.NewGuid();
 
-            return new Customer(id.Value, "Sarmaad", "Amin");
+            return new Customer(id.Value, "Sarmaad", "Amin", "sarmaad@gmail.com",context);
         }
     }
 }

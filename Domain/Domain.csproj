@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="AppContext.cs" />
     <Compile Include="Exceptions\CustomerLimitReachedException.cs" />
+    <Compile Include="Exceptions\DuplicateEmailException.cs" />
     <Compile Include="Exceptions\EntityNotFoundException.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\Order.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="Spec\CustomerCreditLimitReached.cs" />
     <Compile Include="Spec\CustomerExistsSpecification.cs" />
     <Compile Include="Infrastructure\ISpecification.cs" />
+    <Compile Include="Spec\DuplicateCustomerEmail.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

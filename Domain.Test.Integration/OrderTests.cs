@@ -16,7 +16,7 @@ namespace Domain.Test.Integration
         [Test]
         public void CreateOrder()
         {
-            var customer = CustomerTests.DefaulCustomer();
+            var customer = CustomerTests.DefaulCustomer(Context);
             Context.Customers.Add(customer);
             Context.SaveChanges();
 
@@ -35,7 +35,7 @@ namespace Domain.Test.Integration
         [Test,ExpectedException(typeof(CustomerLimitReachedException))]
         public void CreateOrder_UnableToProcessOverlimitCustomer()
         {
-            var customer = CustomerTests.DefaulCustomer();
+            var customer = CustomerTests.DefaulCustomer(Context);
             customer.SetCustomerOrderLimit(10);
             Context.Customers.Add(customer);
             Context.SaveChanges();
