@@ -16,12 +16,7 @@ namespace Domain.Spec
 
         public bool IsSatisfiedBy(Order entity)
         {
-
-            var found=_context.Customers.Any(x => x.CustomerId == entity.CustomerId);
-
-            return found;
-
-
+            return _context.Customers.Any(x => x.CustomerId == entity.CustomerId); 
         }
     }
 

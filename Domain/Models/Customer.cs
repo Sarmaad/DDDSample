@@ -5,7 +5,7 @@ using Domain.Spec;
 
 namespace Domain.Models
 {
-    public class Customer 
+    public sealed class Customer 
     {
         public Guid CustomerId { get; private set; }
         public string FirstName { get; private set; }
