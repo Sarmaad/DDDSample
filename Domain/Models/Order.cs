@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Entity.Core.Objects.DataClasses;
 using System.Linq;
+using Domain.Exceptions;
 using Domain.Spec;
 using StructureMap;
 
@@ -19,11 +20,13 @@ namespace Domain.Models
             get { return OrderLines == null ? (decimal?) null : OrderLines.Sum(x => x.QTY*x.Price); }
             private set { }
         }
-         
+        
         public decimal TotalPaid { get; private set; }
 
         public Address ShippingAddress { get; private set; }
         public Address BillingAddress { get; private set; }
+
+        public OrderStatus OrderStatus { get; private set; }
 
         internal Order()
         {
@@ -37,16 +40,11 @@ namespace Domain.Models
             ShippingAddress = new Address();
             BillingAddress = new Address();
 
+            OrderStatus = OrderStatus.Draft;
 
             // validate customer exists
-            // validate customer can order
-
-            if (!new CustomerExistsSpecification(context).IsSatisfiedBy(this)) 
-                throw new Exception("Customer not found!");
-
-            if (new CustomerCreditLimitReached(context).IsSatisfiedBy(this)) 
-                throw new Exception("Customer credit limit reached!");
-
+            if (!new CustomerExistsSpecification(context).IsSatisfiedBy(this))
+                throw new EntityNotFoundException(EntityNotFoundException.EntityType.Customer, customerId);
 
             CustomerFullName = customerFullName;
 
@@ -55,7 +53,6 @@ namespace Domain.Models
         {
             CustomerFullName = customerName;
         }
-
         public void AddOrderLine(string productName, int qty, decimal price)
         {
             if(OrderLines == null)
@@ -63,7 +60,23 @@ namespace Domain.Models
 
             OrderLines.Add(new OrderLine { ProductName = productName, QTY = qty, Price = price });
         }
+        public void ProcessingOrder(IAppContext context)
+        {
+            // make sure the customer is not over the limit
+            if (new CustomerCreditLimitReached(context).IsSatisfiedBy(this))
+                throw new CustomerLimitReachedException(CustomerId, OrderId, TotalValue.HasValue ? TotalValue.Value : 0);
 
+            OrderStatus = OrderStatus.Processing;
+        }
+
+    }
+
+    public enum OrderStatus
+    {
+        Draft,
+        Processing,
+        Shipped,
+        Complete
     }
 
     public sealed class Address
@@ -74,7 +87,7 @@ namespace Domain.Models
 
     public class OrderLine
     {
-        //public int OrderLineId { get; set; }
+        public int OrderLineId { get; set; }
         public string ProductName { get; set; }
         public int QTY { get; set; }
         public decimal Price { get; set; }
