@@ -4,7 +4,7 @@ using Domain.Models;
 
 namespace Domain.Spec
 {
-    public class CustomerCreditLimitReached:ISpecification<Order>
+    public class CustomerCreditLimitReached:ICustomerCreditLimitReached
     {
         readonly IAppContext _context;
 
@@ -40,5 +40,9 @@ namespace Domain.Spec
             return totalOutstandingOrders > customer.CustomerCreditLimit;
 
         }
+    }
+
+    public interface ICustomerCreditLimitReached : ISpecification<Order>
+    {
     }
 }

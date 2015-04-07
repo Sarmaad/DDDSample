@@ -8,7 +8,7 @@ using Domain.Models;
 
 namespace Domain.Spec
 {
-    public class DuplicateCustomerEmail:ISpecification<Customer>
+    public class DuplicateCustomerEmail : IDuplicateCustomerEmail
     {
         readonly IAppContext _context;
 
@@ -22,5 +22,9 @@ namespace Domain.Spec
             // customer must have a unique email address
             return _context.Customers.Any(x => x.Email == entity.Email);
         }
+    }
+
+    public interface IDuplicateCustomerEmail : ISpecification<Customer>
+    {
     }
 }

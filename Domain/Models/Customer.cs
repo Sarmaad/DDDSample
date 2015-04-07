@@ -1,10 +1,11 @@
 ﻿using System;
 using Domain.Exceptions;
+using Domain.Infrastructure;
 using Domain.Spec;
 
 namespace Domain.Models
 {
-    public class Customer
+    public class Customer 
     {
         public Guid CustomerId { get; private set; }
         public string FirstName { get; private set; }
@@ -13,25 +14,24 @@ namespace Domain.Models
         public string FullName { get { return string.Format("{0} {1}",FirstName,LastName); } }
         public decimal? CustomerCreditLimit { get; private set; }
 
-        internal Customer()
-        {
-            
-        }
-
-        public Customer(Guid id,string firstName, string lastName, string email, IAppContext context)
+        internal Customer(){}
+        public Customer(Guid id, string firstName, string lastName, string email, IDuplicateCustomerEmail duplicateCustomerEmail)
         {
             CustomerId = id;
             FirstName = firstName;
             LastName = lastName;
             Email = email;
 
-            if (new DuplicateCustomerEmail(context).IsSatisfiedBy(this))
+            if (duplicateCustomerEmail.IsSatisfiedBy(this))
                 throw new DuplicateEmailException(email);
         }
 
+        
         public void SetCustomerOrderLimit(decimal? limit)
         {
             CustomerCreditLimit = limit;
         }
     }
+
+    
 }

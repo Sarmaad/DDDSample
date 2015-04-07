@@ -32,7 +32,7 @@ namespace Domain.Models
         {
             
         }
-        public Order(Guid orderId, Guid customerId, string customerFullName, IAppContext context)
+        public Order(Guid orderId, Guid customerId, string customerFullName, ICustomerExistsSpecification customerExistsSpecification)
         {
             OrderId = orderId;
             CustomerId = customerId;
@@ -43,7 +43,7 @@ namespace Domain.Models
             OrderStatus = OrderStatus.Draft;
 
             // validate customer exists
-            if (!new CustomerExistsSpecification(context).IsSatisfiedBy(this))
+            if (customerExistsSpecification.IsSatisfiedBy(this))
                 throw new EntityNotFoundException(EntityNotFoundException.EntityType.Customer, customerId);
 
             CustomerFullName = customerFullName;
@@ -60,10 +60,10 @@ namespace Domain.Models
 
             OrderLines.Add(new OrderLine { ProductName = productName, QTY = qty, Price = price });
         }
-        public void ProcessingOrder(IAppContext context)
+        public void ProcessingOrder(ICustomerCreditLimitReached customerCreditLimitReached)
         {
             // make sure the customer is not over the limit
-            if (new CustomerCreditLimitReached(context).IsSatisfiedBy(this))
+            if (customerCreditLimitReached.IsSatisfiedBy(this))
                 throw new CustomerLimitReachedException(CustomerId, OrderId, TotalValue.HasValue ? TotalValue.Value : 0);
 
             OrderStatus = OrderStatus.Processing;

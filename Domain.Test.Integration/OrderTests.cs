@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Exceptions;
+using Domain.Infrastructure;
 using Domain.Models;
+using Domain.Spec;
+using Moq;
 using NUnit.Framework;
 
 
@@ -13,14 +16,20 @@ namespace Domain.Test.Integration
     [TestFixture]
     public class OrderTests:SqlCeBaseTest
     {
+        Mock<IDuplicateCustomerEmail> _duplicateCustomerEmail;
+
+        [SetUp]
+        public void Setup()
+        {
+            _duplicateCustomerEmail = new Mock<IDuplicateCustomerEmail>();
+        }
+        
         [Test]
         public void CreateOrder()
         {
-            var customer = CustomerTests.DefaulCustomer(Context);
-            Context.Customers.Add(customer);
-            Context.SaveChanges();
-
-            var domain = DefaultOrder(Context, customer.CustomerId, customer.FullName);
+            var customerId = Guid.NewGuid();
+            var customerFullName = "Test Customer";
+            var domain = DefaultOrder(customerId, customerFullName);
             
             Context.Orders.Add(domain);
             Context.SaveChanges();
@@ -28,29 +37,27 @@ namespace Domain.Test.Integration
             var order = Context.Orders.Single(x => x.OrderId == domain.OrderId);
 
             Assert.NotNull(order);
-            Assert.AreEqual(customer.CustomerId,order.CustomerId);
-            Assert.AreEqual(customer.FullName,order.CustomerFullName);
+            Assert.AreEqual(customerId, order.CustomerId);
+            Assert.AreEqual(customerFullName, order.CustomerFullName);
         }
 
         [Test,ExpectedException(typeof(CustomerLimitReachedException))]
         public void CreateOrder_UnableToProcessOverlimitCustomer()
         {
-            var customer = CustomerTests.DefaulCustomer(Context);
-            customer.SetCustomerOrderLimit(10);
-            Context.Customers.Add(customer);
-            Context.SaveChanges();
-
-            var domain = DefaultOrder(Context, customer.CustomerId, customer.FullName);
-            domain.AddOrderLine("Test product",10,10.95m);
-            domain.ProcessingOrder(Context);
-           
-
+            var customerCreditLimitReached = new Mock<ICustomerCreditLimitReached>();
+            customerCreditLimitReached.Setup(x => x.IsSatisfiedBy(It.IsAny<Order>())).Returns(true);
+            
+            var domain = DefaultOrder();
+            domain.ProcessingOrder(customerCreditLimitReached.Object);
         }
 
         [Test, ExpectedException(typeof(EntityNotFoundException))]
         public void CreateOrder_CustomerDoesNotExists()
         {
-           var domain = DefaultOrder(Context, Guid.NewGuid(), "John Smith");
+            var customerExistsSpecification = new Mock<ICustomerExistsSpecification>();
+            customerExistsSpecification.Setup(x => x.IsSatisfiedBy(It.IsAny<Order>())).Returns(true);
+
+            var domain = DefaultOrder(customerExistsSpecification: customerExistsSpecification.Object);
 
 
             Context.Orders.Add(domain);
@@ -60,11 +67,19 @@ namespace Domain.Test.Integration
 
 
 
-        public static Order DefaultOrder(IAppContext context, Guid customerId, string fullName, Guid? orderId = null)
+        public static Order DefaultOrder(Guid? customerId = null, string fullName=null, Guid? orderId = null, ICustomerExistsSpecification customerExistsSpecification=null)
         {
+            if (!customerId.HasValue) customerId = Guid.NewGuid();
+            if (string.IsNullOrWhiteSpace(fullName)) fullName = "Test Customer";
             if (!orderId.HasValue) orderId = Guid.NewGuid();
+            if (customerExistsSpecification == null)
+            {
+                var mCustomerExistsSpecification = new Mock<ICustomerExistsSpecification>();
+                mCustomerExistsSpecification.Setup(x => x.IsSatisfiedBy(It.IsAny<Order>())).Returns(false);
+                customerExistsSpecification = mCustomerExistsSpecification.Object;
+            }
 
-            return new Order(orderId.Value, customerId,fullName, context);
+            return new Order(orderId.Value, customerId.Value,fullName,customerExistsSpecification);
         }
     }
 }

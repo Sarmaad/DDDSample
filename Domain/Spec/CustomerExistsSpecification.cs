@@ -5,7 +5,7 @@ using Domain.Models;
 
 namespace Domain.Spec
 {
-    public class CustomerExistsSpecification:ISpecification<Order>
+    public class CustomerExistsSpecification : ICustomerExistsSpecification
     {
         readonly IAppContext _context;
 
@@ -23,5 +23,9 @@ namespace Domain.Spec
 
 
         }
+    }
+
+    public interface ICustomerExistsSpecification : ISpecification<Order>
+    {
     }
 }
