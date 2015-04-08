@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Diagnostics;
 using Domain.Models;
 
@@ -19,7 +20,7 @@ namespace Domain
         
     }
 
-    public interface IAppContext
+    public interface IAppContext:IDisposable
     {
         IDbSet<Order> Orders { get; set; }
         IDbSet<Customer> Customers { get; set; }

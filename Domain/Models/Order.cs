@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity.Core.Objects.DataClasses;
 using System.Linq;
 using Domain.Exceptions;
@@ -15,37 +17,32 @@ namespace Domain.Models
         public string CustomerFullName { get; private set; }
 
         public ICollection<OrderLine> OrderLines { get; private set; }
+        public ICollection<OrderPayment> OrderPayments { get; private set; }
+
         public decimal? TotalValue
         {
             get { return OrderLines == null ? (decimal?) null : OrderLines.Sum(x => x.QTY*x.Price); }
             private set { }
         }
-        
-        public decimal TotalPaid { get; private set; }
+        public decimal? TotalPaid
+        {
+            get { return OrderPayments == null ? (decimal?) null : OrderPayments.Where(x => x.IsSuccessful).Sum(x => x.PaymentAmount); }
+            private set { }
+        }
 
         public Address ShippingAddress { get; private set; }
-        public Address BillingAddress { get; private set; }
-
         public OrderStatus OrderStatus { get; private set; }
 
         internal Order()
         {
             
         }
-        public Order(Guid orderId, Guid customerId, string customerFullName, ICustomerExistsSpecification customerExistsSpecification)
+        public Order(Guid orderId, Guid customerId, string customerFullName, Address shippingAddress)
         {
             OrderId = orderId;
             CustomerId = customerId;
-            
-            ShippingAddress = new Address();
-            BillingAddress = new Address();
-
+            ShippingAddress = shippingAddress;
             OrderStatus = OrderStatus.Draft;
-
-            // validate customer exists
-            if (customerExistsSpecification.IsSatisfiedBy(this))
-                throw new EntityNotFoundException(EntityNotFoundException.EntityType.Customer, customerId);
-
             CustomerFullName = customerFullName;
 
         }
@@ -55,10 +52,13 @@ namespace Domain.Models
         }
         public void AddOrderLine(string productName, int qty, decimal price)
         {
-            if(OrderLines == null)
-                OrderLines = new EntityCollection<OrderLine>();
-
-            OrderLines.Add(new OrderLine { ProductName = productName, QTY = qty, Price = price });
+            if (OrderLines==null) OrderLines = new Collection<OrderLine>();
+            OrderLines.Add(new OrderLine
+                            {
+                                ProductName = productName,
+                                QTY = qty,
+                                Price = price
+                            });
         }
         public void ProcessingOrder(ICustomerCreditLimitReached customerCreditLimitReached)
         {
@@ -68,7 +68,17 @@ namespace Domain.Models
 
             OrderStatus = OrderStatus.Processing;
         }
-
+        public void AddPayment(DateTime paidOn,decimal amount,bool isSuccessful)
+        {
+            if(OrderStatus==OrderStatus.Draft) throw new Exception("Order is in Draft!");
+            if (OrderPayments == null) OrderPayments = new Collection<OrderPayment>();
+            OrderPayments.Add(new OrderPayment
+                               {
+                                   PaymentDate = paidOn,
+                                   PaymentAmount = amount,
+                                   IsSuccessful = isSuccessful
+                               });
+        }
     }
 
     public enum OrderStatus
@@ -82,7 +92,11 @@ namespace Domain.Models
     public sealed class Address
     {
         public string Address1 { get; set; }
+        public string Address2 { get; set; }
         public string Suburb { get; set; }
+        public string Postcode { get; set; }
+        public string State { get; set; }
+        public string Country { get; set; }
     }
 
     public class OrderLine
@@ -92,4 +106,13 @@ namespace Domain.Models
         public int QTY { get; set; }
         public decimal Price { get; set; }
     }
+    public class OrderPayment
+    {
+        public int OrderPaymentId { get; set; }
+        public DateTime PaymentDate { get; set; }
+        public decimal PaymentAmount { get; set; }
+        public bool IsSuccessful { set; get; }
+    }
+
+    
 }

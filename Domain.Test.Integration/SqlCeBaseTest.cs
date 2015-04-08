@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using NUnit.Framework;
 
 namespace Domain.Test.Integration
@@ -6,11 +7,19 @@ namespace Domain.Test.Integration
     public abstract class SqlCeBaseTest
     {
         protected IAppContext Context { get; private set; }
+        protected string DatabaseConnection { get; set; }
 
+        protected void Read(Action<IAppContext> action)
+        {
+            using (var context = new AppContext(DatabaseConnection))
+                action(context);
+        }
+            
         [SetUp]
         public void BaseSetup()
         {
-            Context = new AppContext(string.Format("Data Source=domain_{0}.sdf;Persist Security Info=False;", Guid.NewGuid()));
+            DatabaseConnection = string.Format("Data Source=domain_{0}.sdf;Persist Security Info=False;", Guid.NewGuid());
+            Context = new AppContext(DatabaseConnection);
         }
 
         [TearDown]

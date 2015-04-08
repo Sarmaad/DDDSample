@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,15 +31,21 @@ namespace Domain.Test.Integration
             var customerId = Guid.NewGuid();
             var customerFullName = "Test Customer";
             var domain = DefaultOrder(customerId, customerFullName);
-            
+
+            domain.AddOrderLine("Test Product", 1, 10.95m);
+
             Context.Orders.Add(domain);
             Context.SaveChanges();
 
-            var order = Context.Orders.Single(x => x.OrderId == domain.OrderId);
+            Read(context =>
+                 {
+                     var order = context.Orders.Include(x => x.OrderLines).Single(x => x.OrderId == domain.OrderId);
 
-            Assert.NotNull(order);
-            Assert.AreEqual(customerId, order.CustomerId);
-            Assert.AreEqual(customerFullName, order.CustomerFullName);
+                     Assert.NotNull(order);
+                     Assert.AreEqual(customerId, order.CustomerId);
+                     Assert.AreEqual(customerFullName, order.CustomerFullName);
+                     Assert.AreEqual(1, order.OrderLines.Count);
+                 });
         }
 
         [Test,ExpectedException(typeof(CustomerLimitReachedException))]
@@ -51,35 +58,47 @@ namespace Domain.Test.Integration
             domain.ProcessingOrder(customerCreditLimitReached.Object);
         }
 
-        [Test, ExpectedException(typeof(EntityNotFoundException))]
-        public void CreateOrder_CustomerDoesNotExists()
+        [Test]
+        public void CreateOrder_PaidInFull()
         {
-            var customerExistsSpecification = new Mock<ICustomerExistsSpecification>();
-            customerExistsSpecification.Setup(x => x.IsSatisfiedBy(It.IsAny<Order>())).Returns(true);
+            var customerCreditLimitReached = new Mock<ICustomerCreditLimitReached>();
+            customerCreditLimitReached.Setup(x => x.IsSatisfiedBy(It.IsAny<Order>())).Returns(false);
 
-            var domain = DefaultOrder(customerExistsSpecification: customerExistsSpecification.Object);
+            var orderValue = 11.95m;
 
+            var domain = DefaultOrder();
+            domain.AddOrderLine("Test Product", 1, orderValue);
+            domain.ProcessingOrder(customerCreditLimitReached.Object);
+            domain.AddPayment(DateTime.Now, orderValue, true);
 
             Context.Orders.Add(domain);
             Context.SaveChanges();
 
+
+            Read(context =>
+                 {
+                     var order = context.Orders.Include(x => x.OrderLines).Include(x => x.OrderPayments).Single(x => x.OrderId == domain.OrderId);
+
+                     Assert.AreEqual(orderValue, order.TotalValue);
+                     Assert.AreEqual(orderValue, order.TotalPaid);
+                 });
+
+
+
+
         }
+        
 
 
 
-        public static Order DefaultOrder(Guid? customerId = null, string fullName=null, Guid? orderId = null, ICustomerExistsSpecification customerExistsSpecification=null)
+        public static Order DefaultOrder(Guid? customerId = null, string fullName=null, Guid? orderId = null, Address shippingAddress=null)
         {
             if (!customerId.HasValue) customerId = Guid.NewGuid();
             if (string.IsNullOrWhiteSpace(fullName)) fullName = "Test Customer";
             if (!orderId.HasValue) orderId = Guid.NewGuid();
-            if (customerExistsSpecification == null)
-            {
-                var mCustomerExistsSpecification = new Mock<ICustomerExistsSpecification>();
-                mCustomerExistsSpecification.Setup(x => x.IsSatisfiedBy(It.IsAny<Order>())).Returns(false);
-                customerExistsSpecification = mCustomerExistsSpecification.Object;
-            }
+            if(shippingAddress==null)shippingAddress = new Address();
 
-            return new Order(orderId.Value, customerId.Value,fullName,customerExistsSpecification);
+            return new Order(orderId.Value, customerId.Value, fullName, shippingAddress);
         }
     }
 }

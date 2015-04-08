@@ -31,9 +31,9 @@ namespace Domain.Spec
                                           select new {TotalOutstanding = o.TotalValue - o.TotalPaid}).Sum(x => x.TotalOutstanding) ?? 0;
 
             // add the current order to totalOutstandingOrders
-            if (entity.TotalValue.HasValue)
+            if (entity.TotalValue.HasValue && entity.TotalPaid.HasValue)
             {
-                totalOutstandingOrders += (entity.TotalValue.Value - entity.TotalPaid);
+                totalOutstandingOrders += (entity.TotalValue.Value - entity.TotalPaid.Value);
             }
             
 

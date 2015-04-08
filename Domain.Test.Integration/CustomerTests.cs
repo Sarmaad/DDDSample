@@ -33,9 +33,12 @@ namespace Domain.Test.Integration
             Context.Customers.Add(domain);
             Context.SaveChanges();
 
-            var customer = Context.Customers.Single(x => x.CustomerId == domain.CustomerId);
+            Read(context =>
+                 {
+                     var customer = context.Customers.Single(x => x.CustomerId == domain.CustomerId);
 
-            Assert.NotNull(customer);
+                     Assert.NotNull(customer);
+                 });
         }
 
         [Test]
@@ -49,10 +52,13 @@ namespace Domain.Test.Integration
             Context.Customers.Add(domain);
             Context.SaveChanges();
 
-            var customer = Context.Customers.Single(x => x.CustomerId == domain.CustomerId);
+            Read(context =>
+                 {
+                     var customer = context.Customers.Single(x => x.CustomerId == domain.CustomerId);
 
-            Assert.NotNull(customer);
-            Assert.AreEqual(limit, customer.CustomerCreditLimit);
+                     Assert.NotNull(customer);
+                     Assert.AreEqual(limit, customer.CustomerCreditLimit);
+                 });
         }
 
         [Test, ExpectedException(typeof(DuplicateEmailException))]
