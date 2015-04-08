@@ -34,6 +34,8 @@ namespace Domain.Test.Integration
 
             domain.AddOrderLine("Test Product", 1, 10.95m);
 
+            var e = domain.GetUncommittedEvents();
+
             Context.Orders.Add(domain);
             Context.SaveChanges();
 

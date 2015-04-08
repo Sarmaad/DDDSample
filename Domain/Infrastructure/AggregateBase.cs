@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,11 +9,11 @@ namespace Domain.Infrastructure
     public abstract class AggregateBase : IAggregate
     {
         readonly ICollection<object> _uncommittedEvents = new LinkedList<object>();
-
         IRouteEvents _registeredRoutes;
 
-        protected AggregateBase(): this(null){}
+        public int Version { get; protected set; }
 
+        protected AggregateBase(): this(null){}
         protected AggregateBase(IRouteEvents handler)
         {
             if (handler == null) return;
@@ -20,9 +21,6 @@ namespace Domain.Infrastructure
             this.RegisteredRoutes = handler;
             this.RegisteredRoutes.Register(this);
         }
-
-        public int Version { get; protected set; }
-
         protected IRouteEvents RegisteredRoutes
         {
             get
@@ -37,12 +35,10 @@ namespace Domain.Infrastructure
                 _registeredRoutes = value;
             }
         }
-
         protected void Register<T>(Action<T> route)
         {
             this.RegisteredRoutes.Register(route);
         }
-
         protected void RaiseEvent(object @event)
         {
             ((IAggregate)this).ApplyEvent(@event);
@@ -52,6 +48,14 @@ namespace Domain.Infrastructure
         {
             RegisteredRoutes.Dispatch(@event);
             Version++;
+        }
+        public ICollection GetUncommittedEvents()
+        {
+            return (ICollection)this._uncommittedEvents;
+        }
+        public void ClearUncommittedEvents()
+        {
+            this.uncommittedEvents.Clear();
         }
     }
 }
