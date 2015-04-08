@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Entity.Core.Objects.DataClasses;
 using System.Linq;
 using Domain.Events.Orders;
 using Domain.Exceptions;
 using Domain.Infrastructure;
-using Domain.Spec;
-using StructureMap;
+using Domain.Specifications;
 
 namespace Domain.Models
 {
+    /// <summary>
+    /// Order Domain implement CQRS by inheriting from AggregateBase
+    /// </summary>
     public sealed class Order:AggregateBase
     {
         public Guid OrderId { get; private set; }
@@ -39,31 +39,37 @@ namespace Domain.Models
         {
             
         }
-        public Order(Guid orderId, Guid customerId, string customerFullName, Address shippingAddress)
+        public Order(Guid orderId, Guid customerId, string customerFullName, string address1, string address2, string suburb, string state, string postcode, string country)
         {
             RaiseEvent(new OrderCreated
                   {
                       OrderId=orderId,
                       CustomerId = customerId,
                       CustomerFullName = customerFullName,
-                      OrderStatus= OrderStatus.Draft.ToString()
+                      OrderStatus= OrderStatus.Draft.ToString(),
+                      ShippingAddress1 = address1,
+                      ShippingAddress2 = address2,
+                      ShippingSuburb = suburb,
+                      ShippingPostcode = postcode,
+                      ShippingState = state,
+                      ShippingCountry = country,
                   });
             
         }
         public void ChangeCustomerName(string customerName)
         {
-            RaiseEvent(new CustomerNameChanged{CustomerName = customerName});
-            CustomerFullName = customerName;
+            RaiseEvent(new CustomerNameChanged {CustomerName = customerName});
         }
         public void AddOrderLine(string productName, int qty, decimal price)
         {
-            if (OrderLines==null) OrderLines = new Collection<OrderLine>();
-            OrderLines.Add(new OrderLine
-                            {
-                                ProductName = productName,
-                                QTY = qty,
-                                Price = price
-                            });
+            RaiseEvent(new OrderLineAdded
+            {
+                ProductName=productName,
+                QTY = qty,
+                Price = price
+            });
+
+           
         }
         public void ProcessingOrder(ICustomerCreditLimitReached customerCreditLimitReached)
         {
@@ -71,18 +77,18 @@ namespace Domain.Models
             if (customerCreditLimitReached.IsSatisfiedBy(this))
                 throw new CustomerLimitReachedException(CustomerId, OrderId, TotalValue.HasValue ? TotalValue.Value : 0);
 
-            OrderStatus = OrderStatus.Processing;
+            RaiseEvent(new OrderProcessed{OrderStatus = Models.OrderStatus.Processing.ToString()});
         }
         public void AddPayment(DateTime paidOn,decimal amount,bool isSuccessful)
         {
-            if(OrderStatus==OrderStatus.Draft) throw new Exception("Order is in Draft!");
-            if (OrderPayments == null) OrderPayments = new Collection<OrderPayment>();
-            OrderPayments.Add(new OrderPayment
-                               {
-                                   PaymentDate = paidOn,
-                                   PaymentAmount = amount,
-                                   IsSuccessful = isSuccessful
-                               });
+            if (OrderStatus == OrderStatus.Draft) throw new Exception("Order is in Draft!");
+
+            RaiseEvent(new PaymentAdded
+            {
+                PaymentDate = paidOn,
+                PaymentAmount = amount,
+                IsSuccessful = isSuccessful
+            });
         }
 
 
@@ -90,14 +96,47 @@ namespace Domain.Models
         {
             OrderId = e.OrderId;
             CustomerId = e.CustomerId;
-            
-           // OrderStatus = e.OrderStatus;
+
+            OrderStatus = (OrderStatus)Enum.Parse(typeof(OrderStatus), e.OrderStatus);
             CustomerFullName = e.CustomerFullName;
-            ShippingAddress = new Address();
+            ShippingAddress = new Address
+            {
+                Address1 = e.ShippingAddress1,
+                Address2 = e.ShippingAddress2,
+                Suburb = e.ShippingSuburb,
+                Postcode = e.ShippingPostcode,
+                State = e.ShippingState,
+                Country = e.ShippingCountry
+
+            };
         }
         void When(CustomerNameChanged e)
         {
             CustomerFullName = e.CustomerName;
+        }
+        void When(OrderLineAdded e)
+        {
+            if (OrderLines == null) OrderLines = new Collection<OrderLine>();
+            OrderLines.Add(new OrderLine
+            {
+                ProductName = e.ProductName,
+                QTY = e.QTY,
+                Price = e.Price
+            });
+        }
+        void When(OrderProcessed e)
+        {
+            OrderStatus = (OrderStatus) Enum.Parse(typeof (OrderStatus), e.OrderStatus);
+        }
+        void When(PaymentAdded e)
+        {
+            if (OrderPayments == null) OrderPayments = new Collection<OrderPayment>();
+            OrderPayments.Add(new OrderPayment
+            {
+                PaymentDate = e.PaymentDate,
+                PaymentAmount = e.PaymentAmount,
+                IsSuccessful = e.IsSuccessful
+            });
         }
     }
 
@@ -122,13 +161,16 @@ namespace Domain.Models
     public class OrderLine
     {
         public int OrderLineId { get; set; }
+        public Guid OrderId { get; set; }
         public string ProductName { get; set; }
         public int QTY { get; set; }
         public decimal Price { get; set; }
+
     }
     public class OrderPayment
     {
         public int OrderPaymentId { get; set; }
+        public Guid OrderId { get; set; }
         public DateTime PaymentDate { get; set; }
         public decimal PaymentAmount { get; set; }
         public bool IsSuccessful { set; get; }

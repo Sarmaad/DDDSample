@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Domain.Exceptions;
-using Domain.Infrastructure;
 using Domain.Models;
-using Domain.Spec;
+using Domain.Specifications;
 using Moq;
 using NUnit.Framework;
 
@@ -33,8 +29,6 @@ namespace Domain.Test.Integration
             var domain = DefaultOrder(customerId, customerFullName);
 
             domain.AddOrderLine("Test Product", 1, 10.95m);
-
-            var e = domain.GetUncommittedEvents();
 
             Context.Orders.Add(domain);
             Context.SaveChanges();
@@ -84,23 +78,18 @@ namespace Domain.Test.Integration
                      Assert.AreEqual(orderValue, order.TotalValue);
                      Assert.AreEqual(orderValue, order.TotalPaid);
                  });
-
-
-
-
         }
         
 
 
 
-        public static Order DefaultOrder(Guid? customerId = null, string fullName=null, Guid? orderId = null, Address shippingAddress=null)
+        public static Order DefaultOrder(Guid? customerId = null, string fullName=null, Guid? orderId = null, string address1="",string address2="", string suburb="",string postcode="",string state="", string country="")
         {
             if (!customerId.HasValue) customerId = Guid.NewGuid();
             if (string.IsNullOrWhiteSpace(fullName)) fullName = "Test Customer";
             if (!orderId.HasValue) orderId = Guid.NewGuid();
-            if(shippingAddress==null)shippingAddress = new Address();
 
-            return new Order(orderId.Value, customerId.Value, fullName, shippingAddress);
+            return new Order(orderId.Value, customerId.Value, fullName, address1, address2, suburb, state, postcode, country);
         }
     }
 }

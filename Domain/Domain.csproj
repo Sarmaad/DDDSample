@@ -36,12 +36,6 @@
     <Reference Include="EntityFramework.SqlServer">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="StructureMap">
-      <HintPath>..\packages\structuremap.3.1.4.143\lib\net40\StructureMap.dll</HintPath>
-    </Reference>
-    <Reference Include="StructureMap.Net4">
-      <HintPath>..\packages\structuremap.3.1.4.143\lib\net40\StructureMap.Net4.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -57,18 +51,23 @@
     <Compile Include="Exceptions\CustomerLimitReachedException.cs" />
     <Compile Include="Exceptions\DuplicateEmailException.cs" />
     <Compile Include="Exceptions\EntityNotFoundException.cs" />
+    <Compile Include="Infrastructure\AggregateExtensionMethods.cs" />
     <Compile Include="Infrastructure\ConventionEventRouter.cs" />
+    <Compile Include="Infrastructure\HandlerForDomainEventNotFoundException.cs" />
     <Compile Include="Infrastructure\IAggregate.cs" />
     <Compile Include="Infrastructure\AggregateBase.cs" />
     <Compile Include="Infrastructure\IRouteEvents.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Events\Orders\CustomerNameChanged.cs" />
     <Compile Include="Models\Order.cs" />
+    <Compile Include="Events\Orders\OrderLineAdded.cs" />
+    <Compile Include="Events\Orders\OrderProcessed.cs" />
+    <Compile Include="Events\Orders\PaymentAdded.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Spec\CustomerCreditLimitReached.cs" />
-    <Compile Include="Spec\CustomerExistsSpecification.cs" />
+    <Compile Include="Specifications\CustomerCreditLimitReached.cs" />
+    <Compile Include="Specifications\CustomerExistsSpecification.cs" />
     <Compile Include="Infrastructure\ISpecification.cs" />
-    <Compile Include="Spec\DuplicateCustomerEmail.cs" />
+    <Compile Include="Specifications\DuplicateCustomerEmail.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Domain.Infrastructure;
 using Domain.Models;
 
-namespace Domain.Spec
+namespace Domain.Specifications
 {
     public class DuplicateCustomerEmail : IDuplicateCustomerEmail
     {

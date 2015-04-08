@@ -49,13 +49,13 @@ namespace Domain.Infrastructure
             RegisteredRoutes.Dispatch(@event);
             Version++;
         }
-        public ICollection GetUncommittedEvents()
+        ICollection IAggregate.GetUncommittedEvents()
         {
-            return (ICollection)this._uncommittedEvents;
+            return (ICollection)_uncommittedEvents;
         }
-        public void ClearUncommittedEvents()
+        void IAggregate.ClearUncommittedEvents()
         {
-            this.uncommittedEvents.Clear();
+            _uncommittedEvents.Clear();
         }
     }
 }

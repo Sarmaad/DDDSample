@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Domain.Exceptions;
-using Domain.Infrastructure;
 using Domain.Models;
-using Domain.Spec;
+using Domain.Specifications;
 using Moq;
 using NUnit.Framework;
 

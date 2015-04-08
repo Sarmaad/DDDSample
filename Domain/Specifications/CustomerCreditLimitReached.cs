@@ -2,7 +2,7 @@
 using Domain.Infrastructure;
 using Domain.Models;
 
-namespace Domain.Spec
+namespace Domain.Specifications
 {
     public class CustomerCreditLimitReached:ICustomerCreditLimitReached
     {

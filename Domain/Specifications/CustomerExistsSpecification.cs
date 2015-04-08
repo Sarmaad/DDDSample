@@ -1,9 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Domain.Infrastructure;
 using Domain.Models;
 
-namespace Domain.Spec
+namespace Domain.Specifications
 {
     public class CustomerExistsSpecification : ICustomerExistsSpecification
     {
