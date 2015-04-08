@@ -4,13 +4,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity.Core.Objects.DataClasses;
 using System.Linq;
+using Domain.Events.Orders;
 using Domain.Exceptions;
+using Domain.Infrastructure;
 using Domain.Spec;
 using StructureMap;
 
 namespace Domain.Models
 {
-    public sealed class Order
+    public sealed class Order:AggregateBase
     {
         public Guid OrderId { get; private set; }
         public Guid CustomerId { get; private set; }
@@ -39,15 +41,18 @@ namespace Domain.Models
         }
         public Order(Guid orderId, Guid customerId, string customerFullName, Address shippingAddress)
         {
-            OrderId = orderId;
-            CustomerId = customerId;
-            ShippingAddress = shippingAddress;
-            OrderStatus = OrderStatus.Draft;
-            CustomerFullName = customerFullName;
-
+            RaiseEvent(new OrderCreated
+                  {
+                      OrderId=orderId,
+                      CustomerId = customerId,
+                      CustomerFullName = customerFullName,
+                      OrderStatus= OrderStatus.Draft.ToString()
+                  });
+            
         }
         public void ChangeCustomerName(string customerName)
         {
+            RaiseEvent(new CustomerNameChanged{CustomerName = customerName});
             CustomerFullName = customerName;
         }
         public void AddOrderLine(string productName, int qty, decimal price)
@@ -78,6 +83,21 @@ namespace Domain.Models
                                    PaymentAmount = amount,
                                    IsSuccessful = isSuccessful
                                });
+        }
+
+
+        void When(OrderCreated e)
+        {
+            OrderId = e.OrderId;
+            CustomerId = e.CustomerId;
+            
+           // OrderStatus = e.OrderStatus;
+            CustomerFullName = e.CustomerFullName;
+            ShippingAddress = new Address();
+        }
+        void When(CustomerNameChanged e)
+        {
+            CustomerFullName = e.CustomerName;
         }
     }
 

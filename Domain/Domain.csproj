@@ -53,10 +53,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppContext.cs" />
+    <Compile Include="Events\Orders\OrderCreated.cs" />
     <Compile Include="Exceptions\CustomerLimitReachedException.cs" />
     <Compile Include="Exceptions\DuplicateEmailException.cs" />
     <Compile Include="Exceptions\EntityNotFoundException.cs" />
+    <Compile Include="Infrastructure\ConventionEventRouter.cs" />
+    <Compile Include="Infrastructure\IAggregate.cs" />
+    <Compile Include="Infrastructure\AggregateBase.cs" />
+    <Compile Include="Infrastructure\IRouteEvents.cs" />
     <Compile Include="Models\Customer.cs" />
+    <Compile Include="Events\Orders\CustomerNameChanged.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Spec\CustomerCreditLimitReached.cs" />
