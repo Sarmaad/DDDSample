@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
-using System.Linq;
+using System.Security.Policy;
 using Domain.Exceptions;
 using Domain.Models;
 using Domain.Specifications;
@@ -27,21 +27,27 @@ namespace Domain.Test.Integration
             var customerId = Guid.NewGuid();
             var customerFullName = "Test Customer";
             var domain = DefaultOrder(customerId, customerFullName);
-
             domain.AddOrderLine("Test Product", 1, 10.95m);
 
-            Context.Orders.Add(domain);
-            Context.SaveChanges();
+            var customer = CustomerTests.DefaulCustomer(_duplicateCustomerEmail.Object);
 
-            Read(context =>
-                 {
-                     var order = context.Orders.Include(x => x.OrderLines).Single(x => x.OrderId == domain.OrderId);
+            Repository(repository =>
+                       {
+                           repository.Add(customer);
+                           repository.Add(domain);
+                       });
 
-                     Assert.NotNull(order);
-                     Assert.AreEqual(customerId, order.CustomerId);
-                     Assert.AreEqual(customerFullName, order.CustomerFullName);
-                     Assert.AreEqual(1, order.OrderLines.Count);
-                 });
+            Repository(repository =>
+                       {
+                           var order = repository.Load<Order>(x => x.OrderId == domain.OrderId, 
+                               i => i.OrderLines);
+
+                           Assert.NotNull(order);
+                           Assert.NotNull(order.OrderLines);
+                           Assert.AreEqual(customerId, order.CustomerId);
+                           Assert.AreEqual(customerFullName, order.CustomerFullName);
+                           Assert.AreEqual(1, order.OrderLines.Count);
+                       });
         }
 
         [Test,ExpectedException(typeof(CustomerLimitReachedException))]
@@ -67,20 +73,42 @@ namespace Domain.Test.Integration
             domain.ProcessingOrder(customerCreditLimitReached.Object);
             domain.AddPayment(DateTime.Now, orderValue, true);
 
-            Context.Orders.Add(domain);
-            Context.SaveChanges();
+            Repository(repository => repository.Add(domain));
 
 
-            Read(context =>
-                 {
-                     var order = context.Orders.Include(x => x.OrderLines).Include(x => x.OrderPayments).Single(x => x.OrderId == domain.OrderId);
+            Repository(repository =>
+                       {
+                           var order = repository.Load<Order>(x => x.OrderId == domain.OrderId,
+                                                              i => i.OrderLines,
+                                                              i => i.OrderPayments);
 
-                     Assert.AreEqual(orderValue, order.TotalValue);
-                     Assert.AreEqual(orderValue, order.TotalPaid);
-                 });
+                           Assert.AreEqual(orderValue, order.TotalValue);
+                           Assert.AreEqual(orderValue, order.TotalPaid);
+                       });
         }
-        
 
+        [Test]
+        public void CreateOrder_FindByCustomerId()
+        {
+            var customerId = Guid.NewGuid();
+            var customerFullName = "Test Customer";
+            var domain = DefaultOrder(customerId, customerFullName);
+            domain.AddOrderLine("Test Product", 1, 10.95m);
+
+            Repository(repository => repository.Add(domain));
+
+            Repository(repository =>
+                       {
+                           var q = new CustomerOrders(customerId);
+                           var orders = repository.Search(q);
+                           Assert.AreEqual(1, orders.TotalFound);
+                           //Assert.NotNull(order);
+                           //Assert.NotNull(order.OrderLines);
+                           //Assert.AreEqual(customerId, order.CustomerId);
+                           //Assert.AreEqual(customerFullName, order.CustomerFullName);
+                           //Assert.AreEqual(1, order.OrderLines.Count);
+                       });
+        }
 
 
         public static Order DefaultOrder(Guid? customerId = null, string fullName=null, Guid? orderId = null, string address1="",string address2="", string suburb="",string postcode="",string state="", string country="")

@@ -25,12 +25,12 @@ namespace Domain.Test.Integration
         public void CreateCustomer()
         {
             var domain = DefaulCustomer(_duplicateCustomerEmail.Object);
-            Context.Customers.Add(domain);
-            Context.SaveChanges();
+            Repository(repository => repository.Add(domain));
 
-            Read(context =>
-                 {
-                     var customer = context.Customers.Single(x => x.CustomerId == domain.CustomerId);
+            Repository(repository=>
+                       {
+                           var customer = repository.Load<Customer>(x => x.CustomerId == domain.CustomerId);
+                     //var customer = context.Customers.Single(x => x.CustomerId == domain.CustomerId);
 
                      Assert.NotNull(customer);
                  });
@@ -43,13 +43,13 @@ namespace Domain.Test.Integration
             var limit = 10.95m;
             var domain = DefaulCustomer(_duplicateCustomerEmail.Object);
             domain.SetCustomerOrderLimit(limit);
-            
-            Context.Customers.Add(domain);
-            Context.SaveChanges();
 
-            Read(context =>
-                 {
-                     var customer = context.Customers.Single(x => x.CustomerId == domain.CustomerId);
+            Repository(repository => repository.Add(domain));
+
+            Repository(repository =>
+                       {
+                           var customer = repository.Load<Customer>(x => x.CustomerId == domain.CustomerId);
+                     //var customer = context.Customers.Single(x => x.CustomerId == domain.CustomerId);
 
                      Assert.NotNull(customer);
                      Assert.AreEqual(limit, customer.CustomerCreditLimit);
@@ -60,8 +60,9 @@ namespace Domain.Test.Integration
         public void CreateCustomer_DuplciateEmailAddress()
         {
             _duplicateCustomerEmail.Setup(x => x.IsSatisfiedBy(It.IsAny<Customer>())).Returns(true);
-            Context.Customers.Add(DefaulCustomer(_duplicateCustomerEmail.Object));
-            Context.SaveChanges();
+            var domain = DefaulCustomer(_duplicateCustomerEmail.Object);
+            Repository(repository => repository.Add(domain));
+
         }
 
         public static Customer DefaulCustomer(IDuplicateCustomerEmail duplicateCustomerEmail, Guid? id = null)

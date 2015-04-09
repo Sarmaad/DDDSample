@@ -56,7 +56,10 @@
     <Compile Include="Infrastructure\HandlerForDomainEventNotFoundException.cs" />
     <Compile Include="Infrastructure\IAggregate.cs" />
     <Compile Include="Infrastructure\AggregateBase.cs" />
+    <Compile Include="Infrastructure\IQuery.cs" />
+    <Compile Include="Infrastructure\IRepository.cs" />
     <Compile Include="Infrastructure\IRouteEvents.cs" />
+    <Compile Include="Infrastructure\Repository.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Events\Orders\CustomerNameChanged.cs" />
     <Compile Include="Models\Order.cs" />
@@ -64,6 +67,7 @@
     <Compile Include="Events\Orders\OrderProcessed.cs" />
     <Compile Include="Events\Orders\PaymentAdded.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query\CustomerOrders.cs" />
     <Compile Include="Specifications\CustomerCreditLimitReached.cs" />
     <Compile Include="Specifications\CustomerExistsSpecification.cs" />
     <Compile Include="Infrastructure\ISpecification.cs" />

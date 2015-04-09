@@ -92,6 +92,7 @@ namespace Domain.Models
         }
 
 
+
         void When(OrderCreated e)
         {
             OrderId = e.OrderId;
