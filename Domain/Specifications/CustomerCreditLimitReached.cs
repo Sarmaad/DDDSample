@@ -27,14 +27,20 @@ namespace Domain.Specifications
 
             // get all orders that total value >0 and has not been paid fully
             var totalOutstandingOrders = 0m;
-                //(from o in _context.Orders
-                //                          where o.CustomerId == entity.CustomerId && o.TotalValue > 0 && o.TotalPaid < o.TotalValue
-                //                          select new {TotalOutstanding = o.TotalValue - o.TotalPaid}).Sum(x => x.TotalOutstanding) ?? 0;
-
+            
+            var or = _repository.Project<Order, decimal?>(
+                orders =>
+                    (from o in orders
+                        where o.CustomerId == entity.CustomerId && o.TotalValue > 0 && (o.TotalPaid < o.TotalValue || !o.TotalPaid.HasValue)
+                        let totalValue = o.TotalValue ?? 0m
+                        let totalPaid = o.TotalPaid ?? 0m
+                        let totalOutstanding = totalValue - totalPaid
+                        select totalOutstanding).Sum());
+            
             // add the current order to totalOutstandingOrders
-            if (entity.TotalValue.HasValue && entity.TotalPaid.HasValue)
+            if (entity.TotalValue.HasValue)
             {
-                totalOutstandingOrders += (entity.TotalValue.Value - entity.TotalPaid.Value);
+                totalOutstandingOrders += (entity.TotalValue.Value - (entity.TotalPaid.HasValue ? entity.TotalPaid.Value : 0));
             }
             
 

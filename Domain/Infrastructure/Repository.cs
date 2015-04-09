@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Models;
 
 namespace Domain.Infrastructure
 {
@@ -55,6 +56,11 @@ namespace Domain.Infrastructure
         public QueryResult<TResult> Search<TResult>(IQuery<TResult> query)
         {
             return query.Execute(_context);
+        }
+
+        public TProjection Project<TAggregate, TProjection>(Func<IQueryable<TAggregate>, TProjection> query) where TAggregate : class
+        {
+            return query(((AppContext)_context).Set<TAggregate>().AsQueryable());
         }
     }
 }

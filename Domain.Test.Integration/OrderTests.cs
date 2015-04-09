@@ -63,21 +63,33 @@ namespace Domain.Test.Integration
         [Test]
         public void CreateOrder_PaidInFull()
         {
-            var customerCreditLimitReached = new Mock<ICustomerCreditLimitReached>();
-            customerCreditLimitReached.Setup(x => x.IsSatisfiedBy(It.IsAny<Order>())).Returns(false);
 
+            
+
+            //var customerCreditLimitReached = new Mock<ICustomerCreditLimitReached>();
+            //customerCreditLimitReached.Setup(x => x.IsSatisfiedBy(It.IsAny<Order>())).Returns(false);
+            var customer = CustomerTests.DefaulCustomer(new Mock<IDuplicateCustomerEmail>().Object);
+            Repository(s=>s.Add(customer));
+
+            Repository(r => r.Add(DefaultOrder(customerId:customer.CustomerId)));
+
+            var domain = DefaultOrder(customerId:customer.CustomerId);
             var orderValue = 11.95m;
 
-            var domain = DefaultOrder();
-            domain.AddOrderLine("Test Product", 1, orderValue);
-            domain.ProcessingOrder(customerCreditLimitReached.Object);
-            domain.AddPayment(DateTime.Now, orderValue, true);
+            Repository(repository =>
+            {
+                var customerCreditLimitReached = new CustomerCreditLimitReached(repository);
 
-            Repository(repository => repository.Add(domain));
+                domain.AddOrderLine("Test Product", 1, orderValue);
+                domain.ProcessingOrder(customerCreditLimitReached);
+                domain.AddPayment(DateTime.Now, orderValue, true);
 
+                repository.Add(domain);
+            });
 
             Repository(repository =>
-                       {
+            {
+            
                            var order = repository.Load<Order>(x => x.OrderId == domain.OrderId,
                                                               i => i.OrderLines,
                                                               i => i.OrderPayments);
