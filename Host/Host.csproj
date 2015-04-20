@@ -90,7 +90,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndpointConfig.cs" />
-    <Compile Include="Infrastructure\NSBExtentions.cs" />
     <Compile Include="Infrastructure\UnitOfWork.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -106,6 +105,10 @@
     <ProjectReference Include="..\Handlers\Handlers.csproj">
       <Project>{9f9712d8-486d-4654-ac19-c6e9beaec0ab}</Project>
       <Name>Handlers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Host.Common\Host.Common.csproj">
+      <Project>{6c1bc1c3-916e-42a4-b503-80b08db25dad}</Project>
+      <Name>Host.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Messages\Messages.csproj">
       <Project>{db1267e4-d22a-482f-98d6-78c774078aef}</Project>

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NServiceBus;
+﻿using NServiceBus;
 
-namespace Host.Infrastructure
+namespace Host.Common
 {
     public static class NSBExtentions
     {

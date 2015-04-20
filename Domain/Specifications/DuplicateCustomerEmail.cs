@@ -6,17 +6,19 @@ namespace Domain.Specifications
 {
     public class DuplicateCustomerEmail : IDuplicateCustomerEmail
     {
-        readonly IAppContext _context;
+        readonly IRepository _repository;
+        
 
-        public DuplicateCustomerEmail(IAppContext context)
+        public DuplicateCustomerEmail(IRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         public bool IsSatisfiedBy(Customer entity)
         {
             // customer must have a unique email address
-            return _context.Customers.Any(x => x.Email == entity.Email);
+            var anyCustomer = _repository.Project<Customer, bool>(customers => customers.Any(x => x.Email == entity.Email));
+            return anyCustomer;
         }
     }
 

@@ -2,6 +2,7 @@
 using System.Configuration;
 using Domain;
 using Domain.Infrastructure;
+using Host.Common;
 using Host.Infrastructure;
 using Ninject;
 using NServiceBus.Logging;
