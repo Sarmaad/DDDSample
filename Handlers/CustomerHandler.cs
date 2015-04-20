@@ -11,18 +11,19 @@ namespace Handlers
     {
         readonly IRepository _repository;
         readonly IBus _bus;
-        readonly IDuplicateCustomerEmail _duplicateCustomerEmail;
+        readonly ISpecificationFactory _specificationFactory;
+        
 
-        public CustomerHandler(IRepository repository, IBus bus, IDuplicateCustomerEmail duplicateCustomerEmail)
+        public CustomerHandler(IRepository repository, IBus bus, ISpecificationFactory specificationFactory)
         {
             _repository = repository;
             _bus = bus;
-            _duplicateCustomerEmail = duplicateCustomerEmail;
+            _specificationFactory = specificationFactory;
         }
 
         public void Handle(CreateCustomer message)
         {
-            var customer = new Customer(message.CustomerId, message.FirstName, message.LastName, message.Email,_duplicateCustomerEmail);
+            var customer = new Customer(message.CustomerId, message.FirstName, message.LastName, message.Email,_specificationFactory.Get<IDuplicateCustomerEmail>());
 
             _repository.Add(customer);
 

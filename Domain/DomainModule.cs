@@ -1,4 +1,5 @@
 ﻿using Domain.Infrastructure;
+using Domain.Specifications;
 using Ninject.Modules;
 
 namespace Domain
@@ -8,6 +9,7 @@ namespace Domain
         public override void Load()
         {
             Bind<IRepository>().To<Repository>().InThreadScope();
+            Bind<IDuplicateCustomerEmail>().To<DuplicateCustomerEmail>();
         }
     }
 }

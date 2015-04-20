@@ -67,6 +67,7 @@
     <Compile Include="Infrastructure\IQuery.cs" />
     <Compile Include="Infrastructure\IRepository.cs" />
     <Compile Include="Infrastructure\IRouteEvents.cs" />
+    <Compile Include="Infrastructure\ISpecificationFactory.cs" />
     <Compile Include="Infrastructure\Repository.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Events\Orders\CustomerNameChanged.cs" />

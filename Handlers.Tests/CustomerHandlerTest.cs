@@ -26,9 +26,16 @@ namespace Handlers.Tests
                       };
 
             var repository = new Mock<IRepository>();
-            var duplicateEmail = new Mock<IDuplicateCustomerEmail>();
+            var specificationFactory = new Mock<ISpecificationFactory>();
+            specificationFactory.Setup(x => x.Get<IDuplicateCustomerEmail>())
+                                .Returns(() =>
+                                {
+                                    var dup = new Mock<IDuplicateCustomerEmail>();
+                                    dup.Setup(x => x.IsSatisfiedBy(It.IsAny<Customer>())).Returns(false);
+                                    return dup.Object;
+                                });
 
-            Test.Handler(bus => new CustomerHandler(repository.Object, bus,duplicateEmail.Object))
+            Test.Handler(bus => new CustomerHandler(repository.Object, bus,specificationFactory.Object))
                 .ExpectPublish<ICustomerCreated>(e => e.CustomerId == cmd.CustomerId && e.Email == cmd.Email)
                 .OnMessage(cmd);
         }
@@ -46,10 +53,16 @@ namespace Handlers.Tests
             };
 
             var repository = new Mock<IRepository>();
-            var duplicateEmail = new Mock<IDuplicateCustomerEmail>();
-            duplicateEmail.Setup(x => x.IsSatisfiedBy(It.IsAny<Customer>())).Returns(true);
+            var specificationFactory = new Mock<ISpecificationFactory>();
+            specificationFactory.Setup(x => x.Get<IDuplicateCustomerEmail>())
+                                .Returns(() =>
+                                         {
+                                             var dup = new Mock<IDuplicateCustomerEmail>();
+                                             dup.Setup(x => x.IsSatisfiedBy(It.IsAny<Customer>())).Returns(true);
+                                             return dup.Object;
+                                         });
 
-            Test.Handler(bus => new CustomerHandler(repository.Object, bus,duplicateEmail.Object))
+            Test.Handler(bus => new CustomerHandler(repository.Object, bus, specificationFactory.Object))
                 .ExpectNotPublish<ICustomerCreated>(e => e.CustomerId == cmd.CustomerId && e.Email == cmd.Email)
                 .OnMessage(cmd);
         }
