@@ -7,7 +7,8 @@ namespace Domain
 {
     public class AppContext : DbContext, IAppContext
     {
-        public AppContext(string connectionName):base(connectionName)
+        public AppContext(string connectionString)
+            : base(connectionString)
         {
             if (Debugger.IsAttached)
             {

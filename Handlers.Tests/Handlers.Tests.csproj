@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="CustomerHandlerTest.cs" />
     <Compile Include="NSBBaseTest.cs" />
+    <Compile Include="OrderProcessorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
