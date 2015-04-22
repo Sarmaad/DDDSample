@@ -69,6 +69,11 @@
     <Compile Include="Infrastructure\IRouteEvents.cs" />
     <Compile Include="Infrastructure\ISpecificationFactory.cs" />
     <Compile Include="Infrastructure\Repository.cs" />
+    <Compile Include="Migrations\201504220139144_CustomersAndOrders.cs" />
+    <Compile Include="Migrations\201504220139144_CustomersAndOrders.Designer.cs">
+      <DependentUpon>201504220139144_CustomersAndOrders.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Events\Orders\CustomerNameChanged.cs" />
     <Compile Include="Models\Order.cs" />
@@ -82,7 +87,11 @@
     <Compile Include="Infrastructure\ISpecification.cs" />
     <Compile Include="Specifications\DuplicateCustomerEmail.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201504220139144_CustomersAndOrders.resx">
+      <DependentUpon>201504220139144_CustomersAndOrders.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />

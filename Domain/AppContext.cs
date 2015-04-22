@@ -7,6 +7,12 @@ namespace Domain
 {
     public class AppContext : DbContext, IAppContext
     {
+
+        public AppContext()
+        {
+            
+        }
+
         public AppContext(string connectionString)
             : base(connectionString)
         {

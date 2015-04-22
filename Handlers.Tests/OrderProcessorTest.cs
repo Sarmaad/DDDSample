@@ -51,7 +51,7 @@ namespace Handlers.Tests
                                                     e.Email = "johnsmith@domain.com";
 
                                                 })
-                .ExpectSend<CreateCustomer>()
+                .ExpectSend<CreateCustomer>(customer => customer!=null)
                 .ExpectPublish<IOrderCreated>()
                 .AssertSagaCompletionIs(true)
                 ;
@@ -87,7 +87,7 @@ namespace Handlers.Tests
                     c.Country = "Australia";
                 })
                 .WhenHandling<ICustomerCreated>()
-                .ExpectSend<CreateCustomer>()
+                .ExpectNotSend<CreateCustomer>(customer => customer==null)
                 .ExpectPublish<IOrderCreated>()
                 .AssertSagaCompletionIs(true)
                 ;
