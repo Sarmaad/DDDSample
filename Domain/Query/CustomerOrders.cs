@@ -6,7 +6,9 @@ namespace Domain.Query
 {
     public sealed class CustomerOrders : IQuery<CustomerOrders.Result>
     {
-        readonly Guid _customerId;
+        readonly Guid? _customerId;
+        private readonly string _firstName;
+        private readonly string _lastName;
 
         public class Result
         {
@@ -16,16 +18,27 @@ namespace Domain.Query
             public decimal TotalOutstanding;
         }
 
-        public CustomerOrders(Guid customerId)
+        public CustomerOrders(Guid? customerId = null, string firstName=null, string lastName=null)
         {
             _customerId = customerId;
+            _firstName = firstName;
+            _lastName = lastName;
         }
 
         public QueryResult<Result> Execute(IAppContext context)
         {
             var result = new QueryResult<Result>();
 
-            var q = context.Orders.Where(x => x.CustomerId == _customerId);
+            var q = context.Orders.AsQueryable();
+
+            if (_customerId.HasValue)
+                q = q.Where(x => x.CustomerId == _customerId);
+
+            if (!string.IsNullOrWhiteSpace(_firstName))
+                q = q.Where(x => x.CustomerFullName.StartsWith(_firstName,StringComparison.InvariantCultureIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(_lastName))
+                q = q.Where(x => x.CustomerFullName.EndsWith(_lastName, StringComparison.InvariantCultureIgnoreCase));
 
             result.TotalFound = q.Count();
             result.Results = (from x in q
