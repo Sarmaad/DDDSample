@@ -34,3 +34,5 @@ This sample is far from complete, new features will be added to demonstrate how 
 
     Pending coverage of:
     - WebAPI
+    - MVC application with SignalR
+    -- Push notification from NSB Host
