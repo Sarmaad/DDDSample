@@ -1,21 +1,24 @@
 ﻿using System.Linq;
 using Domain.Infrastructure;
+using Domain.Infrastructure.Interfaces;
 using Domain.Models;
 
 namespace Domain.Specifications
 {
     public class CustomerExistsSpecification : ICustomerExistsSpecification
     {
-        readonly IAppContext _context;
+        readonly IRepository _repository;
+        
 
-        public CustomerExistsSpecification(IAppContext context)
+        public CustomerExistsSpecification(IRepository repository)
         {
-            _context = context;
+            _repository = repository;
+            
         }
 
         public bool IsSatisfiedBy(Order entity)
         {
-            return _context.Customers.Any(x => x.CustomerId == entity.CustomerId); 
+            return _repository.Project<Customer, bool>(customers => customers.Any(x => x.CustomerId == entity.CustomerId));
         }
     }
 

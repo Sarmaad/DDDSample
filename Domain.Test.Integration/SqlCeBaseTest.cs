@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using Domain.Infrastructure;
+using Domain.Storage.EF;
 using NUnit.Framework;
 
 namespace Domain.Test.Integration

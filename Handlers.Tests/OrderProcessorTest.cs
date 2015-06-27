@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Infrastructure;
+using Domain.Infrastructure.Interfaces;
 using Domain.Models;
 using Domain.Specifications;
 using Messages.Commands;

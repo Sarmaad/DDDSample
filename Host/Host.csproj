@@ -98,6 +98,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Domain.Storage.EF\Domain.Storage.EF.csproj">
+      <Project>{F10E9DEE-EF04-4A8E-85C1-3A41C9E5D176}</Project>
+      <Name>Domain.Storage.EF</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Domain\Domain.csproj">
       <Project>{7503dc12-46fc-498a-b9cc-3990548128eb}</Project>
       <Name>Domain</Name>

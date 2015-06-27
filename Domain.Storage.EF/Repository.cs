@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Domain.Models;
+using Domain.Infrastructure;
+using Domain.Infrastructure.Interfaces;
 
-namespace Domain.Infrastructure
+namespace Domain.Storage.EF
 {
     public sealed class Repository : IRepository, IDisposable
     {
@@ -42,25 +40,26 @@ namespace Domain.Infrastructure
             return q.SingleOrDefault(predicate);
         }
 
-
-        void Commit()
-        {
-            _context.SaveChanges();
-        }
-
-        public void Dispose()
-        {
-            Commit();
-        }
-
         public QueryResult<TResult> Search<TResult>(IQuery<TResult> query)
         {
-            return query.Execute(_context);
-        }
+            var handlerType = typeof(IQueryHandler<,>).MakeGenericType(query.GetType(), typeof(TResult));
+            var handler = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                .SingleOrDefault(p => handlerType.IsAssignableFrom(p));
 
+            if (handler == null) return null;
+
+            dynamic q = Activator.CreateInstance(handler, _context);
+            return q.Handle((dynamic)query);
+        }
         public TProjection Project<TAggregate, TProjection>(Func<IQueryable<TAggregate>, TProjection> query) where TAggregate : class
         {
             return query(((AppContext)_context).Set<TAggregate>().AsQueryable());
+        }
+        public void Dispose()
+        {
+            _context.SaveChanges();
         }
     }
 }

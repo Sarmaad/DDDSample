@@ -3,7 +3,7 @@ using System.Data.Entity;
 using System.Diagnostics;
 using Domain.Models;
 
-namespace Domain
+namespace Domain.Storage.EF
 {
     public class AppContext : DbContext, IAppContext
     {

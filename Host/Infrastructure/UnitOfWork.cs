@@ -1,5 +1,6 @@
 ﻿using System;
 using Domain.Infrastructure;
+using Domain.Infrastructure.Interfaces;
 using NServiceBus.UnitOfWork;
 
 namespace Host.Infrastructure

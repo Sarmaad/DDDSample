@@ -2,6 +2,8 @@
 using System.Configuration;
 using Domain;
 using Domain.Infrastructure;
+using Domain.Infrastructure.Interfaces;
+using Domain.Storage.EF;
 using Host.Common;
 using Host.Infrastructure;
 using Ninject;
@@ -33,10 +35,10 @@ namespace Host
 
         IKernel CreateKernel()
         {
-            var kernal = new StandardKernel(new DomainModule());
+            var kernal = new StandardKernel();
 
             kernal.Bind<ILog>().ToMethod(context => LogManager.GetLogger(context.Request.Target.Member.DeclaringType));
-            kernal.Bind<IAppContext>().To<AppContext>().WithConstructorArgument("connectionString", ConfigurationManager.ConnectionStrings["Database"].ConnectionString);
+            kernal.Bind<IAppContext>().To<AppContext>().WithConstructorArgument("connectionString", ConfigurationManager.ConnectionStrings["Database"]);
             kernal.Bind<IManageUnitsOfWork>().To<UnitOfWork>();
 
             return kernal;

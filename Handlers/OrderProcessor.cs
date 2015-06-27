@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Infrastructure;
+using Domain.Infrastructure.Interfaces;
 using Domain.Models;
 using Messages.Commands;
 using Messages.Events;

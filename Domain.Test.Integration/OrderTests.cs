@@ -4,6 +4,7 @@ using System.Security.Policy;
 using Domain.Exceptions;
 using Domain.Models;
 using Domain.Specifications;
+using Domain.Storage.EF.Query;
 using Moq;
 using NUnit.Framework;
 
@@ -110,16 +111,11 @@ namespace Domain.Test.Integration
             Repository(repository => repository.Add(domain));
 
             Repository(repository =>
-                       {
-                           var q = new CustomerOrders(customerId);
-                           var orders = repository.Search(q);
-                           Assert.AreEqual(1, orders.TotalFound);
-                           //Assert.NotNull(order);
-                           //Assert.NotNull(order.OrderLines);
-                           //Assert.AreEqual(customerId, order.CustomerId);
-                           //Assert.AreEqual(customerFullName, order.CustomerFullName);
-                           //Assert.AreEqual(1, order.OrderLines.Count);
-                       });
+            {
+                var q = new CustomerOrders {CustomerId = customerId};
+                var orders = repository.Search(q);
+                Assert.AreEqual(1, orders.TotalFound);
+            });
         }
 
 

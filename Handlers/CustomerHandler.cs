@@ -1,4 +1,5 @@
 ﻿using Domain.Infrastructure;
+using Domain.Infrastructure.Interfaces;
 using Domain.Models;
 using Domain.Specifications;
 using Messages.Commands;
@@ -11,19 +12,21 @@ namespace Handlers
     {
         readonly IRepository _repository;
         readonly IBus _bus;
-        readonly ISpecificationFactory _specificationFactory;
+        readonly IDuplicateCustomerEmail _duplicateCustomerEmail;
+        
         
 
-        public CustomerHandler(IRepository repository, IBus bus, ISpecificationFactory specificationFactory)
+        public CustomerHandler(IRepository repository, IBus bus,IDuplicateCustomerEmail duplicateCustomerEmail)
         {
             _repository = repository;
             _bus = bus;
-            _specificationFactory = specificationFactory;
+            _duplicateCustomerEmail = duplicateCustomerEmail;
+            
         }
 
         public void Handle(CreateCustomer message)
         {
-            var customer = new Customer(message.CustomerId, message.FirstName, message.LastName, message.Email,_specificationFactory.Get<IDuplicateCustomerEmail>());
+            var customer = new Customer(message.CustomerId, message.FirstName, message.LastName, message.Email, _duplicateCustomerEmail);
 
             _repository.Add(customer);
 

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Domain.Infrastructure;
+using Domain.Infrastructure.Interfaces;
 using Domain.Models;
 
 namespace Domain.Specifications
